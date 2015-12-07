@@ -1,6 +1,5 @@
-import * as vscode from "vscode";
+import { commands, Position, QuickPickItem, Range, StatusBarAlignment, StatusBarItem, window, workspace } from "vscode";
 import { Constants, Icons, ErrorMessages, SettingNames, WorkItemFields } from "./constants";
-import { WorkItemQuickPickItem, WorkItemQueryQuickPickItem } from "./common";
 
 var open = require("open");
 var vsts = require("vso-client");
@@ -11,11 +10,11 @@ export class WorkItemService {
 	private _vstsPersonalAccessToken:string;
 	private _vstsTeamProject:string;
 	private _vstsWorkItemTypes:Array<string>;
-	private _statusBarItem:vscode.StatusBarItem;
+	private _statusBarItem:StatusBarItem;
 
 	constructor() {
 		// Add the event listener for settings changes
-		vscode.workspace.onDidChangeConfiguration(() => {
+		workspace.onDidChangeConfiguration(() => {
 			this.loadSettings();
 		});
 
@@ -27,7 +26,7 @@ export class WorkItemService {
 		var _self = this;
 
 		// Make sure we have an active editor 
-		let editor = vscode.window.activeTextEditor;
+		let editor = window.activeTextEditor;
 		if (!editor) {
 			return;
 		}
@@ -37,7 +36,7 @@ export class WorkItemService {
 			editor.document.languageId != "typescript" &&
 			editor.document.languageId != "typescript react" &&
 			editor.document.languageId != "csharp") {
-				vscode.window.showInformationMessage(ErrorMessages.languageNoSupported);
+				window.showInformationMessage(ErrorMessages.languageNoSupported);
 				return;
 			}
 
@@ -48,11 +47,11 @@ export class WorkItemService {
 		}
 
 		if (!selection.isSingleLine) {
-			vscode.window.showInformationMessage(ErrorMessages.multiLineSelectionNotSupported);
+			window.showInformationMessage(ErrorMessages.multiLineSelectionNotSupported);
 			return;
 		}
 
-		let range = new vscode.Range(selection.start.line, selection.start.character, selection.end.line, selection.end.character);
+		let range = new Range(selection.start.line, selection.start.character, selection.end.line, selection.end.character);
 		let taskTitle = editor.document.getText(range).trim();
 
 
@@ -65,7 +64,7 @@ export class WorkItemService {
 				this.createWorkItem(taskTitle, "Task").then((id) => {
 					// Copy the text for indentation 
 					let firstNonWhiteSpace: number = editor.document.lineAt(range.start.line).firstNonWhitespaceCharacterIndex;
-					let indentText:string = editor.document.getText(new vscode.Range(new vscode.Position(range.start.line, 0), new vscode.Position(range.start.line, firstNonWhiteSpace)));
+					let indentText:string = editor.document.getText(new Range(new Position(range.start.line, 0), new Position(range.start.line, firstNonWhiteSpace)));
 
 					// Insert the work item link into source
 					editor.edit(edit => {
@@ -81,18 +80,18 @@ export class WorkItemService {
 
 		if (this._vstsClient) {
 			// Get the list of work item types
-			vscode.window.showQuickPick(this.queryWorkItemTypes())
+			window.showQuickPick(this.queryWorkItemTypes())
 				.then(
 					function (workItemType: string) {
 						if (workItemType && workItemType.length > 0) {
 							// Get the title of the new work item
-							vscode.window.showInputBox({
+							window.showInputBox({
 								placeHolder: "Title of the " + workItemType + "."
 								}).then(function (title:string) {
 									if (title && title.length > 0) {
 										// Create the new work item
 										_self.createWorkItem(title, workItemType).then((id) => {
-											vscode.window.showInformationMessage("Visual Studio Team Services work item " +  id + " created successfully.");
+											window.showInformationMessage("Visual Studio Team Services work item " +  id + " created successfully.");
 										});
 									}
 							});
@@ -115,12 +114,12 @@ export class WorkItemService {
 
 		if (this._vstsClient) {
 			// Get the list of queries from the "My Queries" folder
-			vscode.window.showQuickPick(this.queryWorkItemQueries())
+			window.showQuickPick(this.queryWorkItemQueries())
 				.then(
 					function (query) {
 						if (query) {
 							// Execute the selected query and display the results
-							vscode.window.showQuickPick(_self.execWorkItemQuery(query.wiql))
+							window.showQuickPick(_self.execWorkItemQuery(query.wiql))
 								.then(
 									function (workItem) {
 										open("https://" + _self._vstsAccount + "/" + Constants.defaultCollectionName + "/" + _self._vstsTeamProject + "/_workitems/edit/" + workItem.id);
@@ -160,20 +159,20 @@ export class WorkItemService {
 
 			if (message.indexOf("The resource cannot be found") > -1) {
 				// Wrong account name
-				vscode.window.showErrorMessage(errorMessage + " " + ErrorMessages.accountNotFoundHint);
+				window.showErrorMessage(errorMessage + " " + ErrorMessages.accountNotFoundHint);
 			} else if (message.indexOf("TF200016") > -1) {
 				// Wrong team project name
-				vscode.window.showErrorMessage(errorMessage + " " + ErrorMessages.teamProjectNotFoundHint);
+				window.showErrorMessage(errorMessage + " " + ErrorMessages.teamProjectNotFoundHint);
 			} else if (message.indexOf("Error unauthorized") > -1) {
 				// Insufficient permissions
-				vscode.window.showErrorMessage(errorMessage + " " + ErrorMessages.insufficientPermissionsHint);
+				window.showErrorMessage(errorMessage + " " + ErrorMessages.insufficientPermissionsHint);
 			} else {
 				// Generic hint
-				vscode.window.showErrorMessage(errorMessage + " " + ErrorMessages.generalHint);
+				window.showErrorMessage(errorMessage + " " + ErrorMessages.generalHint);
 			}
 		} else {
 			// Generic hint
-			vscode.window.showErrorMessage(errorMessage + " " + ErrorMessages.generalHint);
+			window.showErrorMessage(errorMessage + " " + ErrorMessages.generalHint);
 		}
 
 		// Open the settings file
@@ -233,7 +232,7 @@ export class WorkItemService {
 		}
 
 		// Add the details of the account and team project to the status bar
-		this._statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, priority);
+		this._statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, priority);
 		this._statusBarItem.command = "extension.openVSTSPortal";
 		this._statusBarItem.text = Icons.account + " " + this._vstsAccount.replace(".visualstudio.com", "") + " " + Icons.teamProject + " " + this._vstsTeamProject;
 		this._statusBarItem.show();
@@ -246,7 +245,7 @@ export class WorkItemService {
 	}
 
 	private openGlobalSettings():void {
-		vscode.commands.executeCommand("workbench.action.openGlobalSettings");
+		commands.executeCommand("workbench.action.openGlobalSettings");
 	}
 
 	private queryWorkItemQueries(): Promise<Array<WorkItemQueryQuickPickItem>> {
@@ -300,16 +299,28 @@ export class WorkItemService {
 	}
 
 	private readSetting<T>(name: string, defaultValue:T, warningValue:T = null, warningMessage: string = ""): T {
-		let configuration = vscode.workspace.getConfiguration();
+		let configuration = workspace.getConfiguration();
 		let value = configuration.get<T>(name);
 
 		// Check if we need to do any validation on the setting value
 		if (warningValue != null && warningMessage && warningMessage.length > 0) {
 			if (!value || value == warningValue) {
-				vscode.window.showWarningMessage(warningMessage);
+				window.showWarningMessage(warningMessage);
 			}
 		}
 
 		return value || defaultValue;
 	}
+}
+
+export class WorkItemQuickPickItem implements QuickPickItem {
+	label: string;
+	description: string;
+	id: string;
+}
+
+export class WorkItemQueryQuickPickItem implements QuickPickItem {
+	label: string;
+	description: string;
+	wiql: string;
 }

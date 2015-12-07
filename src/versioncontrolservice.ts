@@ -1,5 +1,4 @@
 import { window, workspace } from "vscode";
-import { GitRepoDetails } from "./common";
 
 var gitConfig = require("parse-git-config");
 var gitRepoInfo = require("git-repo-info");
@@ -69,4 +68,10 @@ export class VersionControlService {
 
 		return { url: url, branch: info.branch, path: path };
 	}
+}
+
+export class GitRepoDetails {
+	url: string;
+	branch: string;
+	path: string;
 }

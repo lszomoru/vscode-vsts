@@ -27,7 +27,16 @@ export class HealthService {
 		this.pollServiceStatus();
 	}
 
-	public getServiceStatus() :void {
+	public openSupportSite(): void {
+		open(this._statusPageUri);
+	}
+
+	private execRegEx(text:string, expr:string, flags:string):Array<string> {
+		var regEx = new RegExp(expr, flags);
+		return regEx.exec(text);
+	}
+
+	private getServiceStatus() :void {
 		var _self = this;
 
 		rest(this._statusPageUri).then(function(response) {
@@ -55,18 +64,9 @@ export class HealthService {
 		});
 	}
 
-	public openSupportSite(): void {
-		open(this._statusPageUri);
-	}
-
-	public pollServiceStatus(): void {
+	private pollServiceStatus(): void {
 		// Poll the service status every 5 minutes
 		setInterval(() => this.getServiceStatus(), 1000 * 60 * 5);
-	}
-
-	private execRegEx(text:string, expr:string, flags:string):Array<string> {
-		var regEx = new RegExp(expr, flags);
-		return regEx.exec(text);
 	}
 
 	private updateStatusBarItem(icon:string, tooltip:string):void {

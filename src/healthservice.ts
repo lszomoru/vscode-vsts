@@ -1,24 +1,21 @@
 import { StatusBarItem, StatusBarAlignment, window, workspace } from "vscode";
+import { Constants, Icons, SettingNames } from "./constants";
 
 var rest = require("rest");
 var open = require("open");
 
 export class HealthService {
+	private _healthIndicatorColors: any = { "GREEN": Icons.statusGreen, "YELLOW": Icons.statusYellow, "RED": Icons.statusRed };
 	private _statusBarItem: StatusBarItem;
-	private _statusColors:Array<string> = ["GREEN", "YELLOW", "RED"];
-	private _statusIcons:Array<string> = ["octicon-check", "octicon-alert", "octicon-alert"];
-	private _defaultIcon:string = "octicon-question";
-	private _defaultTooltip:string = "Visual Studio Team Services status.";
-	private _statusPageUri:string = "https://www.visualstudio.com/support/support-overview-vs";
+	private _supportWebsiteAddress: string;
 
 	constructor() {
 		this._statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
-		this.updateStatusBarItem(this._defaultIcon, this._defaultTooltip);
+		this._statusBarItem.command = "extension.openVSTSSupportSite";
+		this.updateStatusBarItem(Icons.statusUnknown, Constants.healthIndicatorTooltip);
 
 		// Override the service status page from the configuration file
-		if (workspace.getConfiguration().get<string>("vsts.supportWebsiteAddress", "") != "") {
-			this._statusPageUri = workspace.getConfiguration().get<string>("vsts.supportWebsiteAddress", "");
-		}
+		this._supportWebsiteAddress = workspace.getConfiguration().get<string>(SettingNames.supportWebsiteAddress, Constants.supportWebsiteAddress);
 
 		// Get the service status at the moment
 		this.getServiceStatus();
@@ -28,7 +25,7 @@ export class HealthService {
 	}
 
 	public openSupportSite(): void {
-		open(this._statusPageUri);
+		open(this._supportWebsiteAddress);
 	}
 
 	private execRegEx(text:string, expr:string, flags:string):Array<string> {
@@ -39,24 +36,24 @@ export class HealthService {
 	private getServiceStatus() :void {
 		var _self = this;
 
-		rest(this._statusPageUri).then(function(response) {
+		rest(this._supportWebsiteAddress).then(function(response) {
 			if (response.status.code != 200) {
-				_self.updateStatusBarItem(_self._defaultIcon, _self._defaultTooltip);
+				_self.updateStatusBarItem(Icons.statusUnknown, Constants.healthIndicatorTooltip);
 			} else {
-				var icon = _self._defaultIcon;
-				var tooltip = _self._defaultTooltip;
+				var icon = Icons.statusUnknown;
+				var tooltip = Constants.healthIndicatorTooltip;
 
 				// Extract the service status message from the HTML page
 				var statusMessageResult = _self.execRegEx(response.entity, "<h1 xmlns=\"\">Visual Studio Team Services (\\w|\\W)*?</p>", "m");
-				if (statusMessageResult != null && statusMessageResult.length > 0) {
+				if (statusMessageResult && statusMessageResult.length > 0) {
 					tooltip = statusMessageResult[0].substring(statusMessageResult[0].indexOf("<p") + 12, statusMessageResult[0].indexOf("</p"));
 				}
 
 				// Extract the service status from the HTML page
-				for (var index = 0; index < _self._statusColors.length; index++) {
-					var statusResult = _self.execRegEx(response.entity, "<img id=\""+ _self._statusColors[index] + "\"", "m");
-					if (statusResult != null && statusResult.length > 0) {
-						_self.updateStatusBarItem(_self._statusIcons[index], tooltip);
+				for (var key in _self._healthIndicatorColors) {
+					var statusResult = _self.execRegEx(response.entity, "<img id=\""+ key + "\"", "m");
+					if (statusResult && statusResult.length > 0) {
+						_self.updateStatusBarItem(_self._healthIndicatorColors[key], tooltip);
 						break;
 					}
 				}
@@ -70,9 +67,8 @@ export class HealthService {
 	}
 
 	private updateStatusBarItem(icon:string, tooltip:string):void {
-		this._statusBarItem.text = "VSTS $(icon "+ icon + ")";
+		this._statusBarItem.text = "VSTS " + icon;
 		this._statusBarItem.tooltip = tooltip;
-		this._statusBarItem.command = "extension.openVSTSStatus";
 		this._statusBarItem.show();
 	}
 

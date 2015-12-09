@@ -70,7 +70,53 @@
 				"title": "Open Visual Studio Team Services work items website"
 			}            
     ],
-    "keybindings": [],
+		"keybindings": [
+			{
+				"command": "extension.openVSTSSupportSite",
+				"key": "ctrl+v ctrl+s",
+				"mac": "cmd+v cmd+s"
+			},
+			{
+				"command": "extension.openInVSTS",
+				"key": "ctrl+v ctrl+o",
+				"mac": "cmd+v cmd+o"
+			},			
+			{
+				"command": "extension.annotateInVSTS",
+				"key": "ctrl+v ctrl+a",
+				"mac": "cmd+v cmd+a"
+			},
+			{
+				"command": "extension.viewHistoryInVSTS",
+				"key": "ctrl+v ctrl+h",
+				"mac": "cmd+v cmd+h"
+			},
+			{
+				"command": "extension.viewPullRequestInVSTS",
+				"key": "ctrl+v ctrl+p",
+				"mac": "cmd+v cmd+p"
+			},
+			{
+				"command": "extension.createVSTSWorkItem",
+				"key": "ctrl+v ctrl+n",
+				"mac": "cmd+v cmd+n"
+			},
+			{
+				"command": "extension.createVSTSTaskFromSelection",
+				"key": "ctrl+v ctrl+t",
+				"mac": "cmd+v cmd+t"
+			},
+			{
+				"command": "extension.queryVSTSWorkItems",
+				"key": "ctrl+v ctrl+q",
+				"mac": "cmd+v cmd+q"
+			},
+			{
+				"command": "extension.openVSTSWorkItemsPortal",
+				"key": "ctrl+v ctrl+w",
+				"mac": "cmd+v cmd+w"
+			}      
+		],
     "configuration": {
       "type": "object",
       "title": "Visual Studio Team Services account settings",

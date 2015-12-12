@@ -6,6 +6,24 @@ Before [installing](https://code.visualstudio.com/docs/editor/extension-gallery#
 * [Visual Studio Team Services health indicator](https://marketplace.visualstudio.com/items/lszomoru.vscode-vsts-status)
 * [Visual Studio Team Services work item management extension](https://marketplace.visualstudio.com/items/lszomoru.vscode-vsts-workitems)
 
+## Configuration 
+In order for the extension to access your Visual Studio Team Servies account you need to provide the account name, team project name, and a [personal access token](https://www.visualstudio.com/en-us/news/2015-jul-7-vso.aspx) with "work items (read and write)" permission. After installing the extension, and restarting Visual Studio Code, add the following settings into ```settings.json```:
+```
+	// Visual Studio Team Services account (Ex: contoso.visualstudio.com).
+	"vsts.account": "",
+
+	// Visual Studio Team Services personal access token.
+	"vsts.pat": "",
+
+	// Visual Studio Team Services team project name.
+	"vsts.teamProject": ""
+```
+Additionally you can add an optional setting to control the work item types that can be created using Visual Studio Code.
+```
+	// Visual Studio Team Services work item types. (Ex: ["Bug", "Task"])
+	"vsts.workItemTypes": [],
+```
+
 ## Changelog
 ### v0.0.1
 * Visual Studio Team Service health indicator on the status bar

@@ -7,10 +7,15 @@ The features are available through the commands that were added to the [command 
 ### Visual Studio Team Services health, account, and team project indicators
 Based on the settings in ```settings.json``` two visual indicators are added to the Visual Studio Code status bar. One for the health of Visual Studio Team Services and one for the Visual Studio Team Service account/team project that the extension is connected to. Clicking the service health indicator will open the support website, while clicking the account/team project indicator will open the work item management website.
 ### Create new work item
+![VSCode](assets/vscode4.png)
+![VSCode](assets/vscode5.png)
 ### Create task from selection
 Create a new Visual Studio Team Services task from a single-line text selection to easily track tasks from comments. A link to the newly created task will be automatically injected into the editor. This feature is only available for JavaScript, TypeScript, TypeScript React, and C# files.
+![VSCode](assets/vscode6.png)
 ### Query work items
 Execute a work item querie stored in the "My Queries" folder and open a work item that is returned by the query.
+![VSCode](assets/vscode2.png)
+![VSCode](assets/vscode3.png)
 ### Open/annotate file, view history/pull requests
 
 ## Installation

@@ -18,6 +18,7 @@ Execute a work item querie stored in the "My Queries" folder and open a work ite
 ![VSCode](assets/vscode2.png)
 ![VSCode](assets/vscode3.png)
 ### Open/annotate file, view history/pull requests
+While working with a Git repository hosted in Visual Studio Studio Team Services, you can open the repository or the curren file, annotate the current file, view the history of the repository or the current file, and view pull requests right from within Visual Studio Code. 
 
 ## Installation
 Before [installing](https://code.visualstudio.com/docs/editor/extension-gallery#_browse-extensions) this extension, if you have installed any of the two extensions listed below, please  [uninstall](https://code.visualstudio.com/docs/editor/extension-gallery#_uninstall-an-extension) them as the features included in those extensions have been ported into this extension along with extra functionality that is availability only in this extension.

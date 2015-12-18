@@ -73,48 +73,48 @@
 		"keybindings": [
 			{
 				"command": "extension.openVSTSSupportSite",
-				"key": "ctrl+v ctrl+s",
-				"mac": "cmd+v cmd+s"
+				"key": "ctrl+t ctrl+s",
+				"mac": "cmd+t cmd+s"
 			},
 			{
 				"command": "extension.openInVSTS",
-				"key": "ctrl+v ctrl+o",
-				"mac": "cmd+v cmd+o"
+				"key": "ctrl+t ctrl+o",
+				"mac": "cmd+t cmd+o"
 			},			
 			{
 				"command": "extension.annotateInVSTS",
-				"key": "ctrl+v ctrl+a",
-				"mac": "cmd+v cmd+a"
+				"key": "ctrl+t ctrl+a",
+				"mac": "cmd+t cmd+a"
 			},
 			{
 				"command": "extension.viewHistoryInVSTS",
-				"key": "ctrl+v ctrl+h",
-				"mac": "cmd+v cmd+h"
+				"key": "ctrl+t ctrl+h",
+				"mac": "cmd+t cmd+h"
 			},
 			{
 				"command": "extension.viewPullRequestInVSTS",
-				"key": "ctrl+v ctrl+p",
-				"mac": "cmd+v cmd+p"
+				"key": "ctrl+t ctrl+p",
+				"mac": "cmd+t cmd+p"
 			},
 			{
 				"command": "extension.createVSTSWorkItem",
-				"key": "ctrl+v ctrl+n",
-				"mac": "cmd+v cmd+n"
+				"key": "ctrl+t ctrl+n",
+				"mac": "cmd+t cmd+n"
 			},
 			{
 				"command": "extension.createVSTSTaskFromSelection",
-				"key": "ctrl+v ctrl+t",
-				"mac": "cmd+v cmd+t"
+				"key": "ctrl+t ctrl+t",
+				"mac": "cmd+t cmd+t"
 			},
 			{
 				"command": "extension.queryVSTSWorkItems",
-				"key": "ctrl+v ctrl+q",
-				"mac": "cmd+v cmd+q"
+				"key": "ctrl+t ctrl+q",
+				"mac": "cmd+t cmd+q"
 			},
 			{
 				"command": "extension.openVSTSWorkItemsPortal",
-				"key": "ctrl+v ctrl+w",
-				"mac": "cmd+v cmd+w"
+				"key": "ctrl+t ctrl+w",
+				"mac": "cmd+t cmd+w"
 			}      
 		],
     "configuration": {

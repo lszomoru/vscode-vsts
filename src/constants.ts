@@ -23,6 +23,9 @@ export class ErrorMessages {
 	static insufficientPermissionsHint: string = "Please ensure that the Visual Studio Team Services personal access token in settings.json has work item read/write permissions.";
 	static generalHint: string = "Please ensure that the Visual Studio Team Services settings in settings.json are corect.";
 
+	static notSupported: string = "Visual Studio Team Services git commands are only supported with git repositories that are hosted in Visual Studio Team Services.";
+	static noFileToAnnotate: string = "To use annotate in Visual Studio Team Services please open a file from a git repository hosted in Visual Studio Team Services.";
+
 	static languageNoSupported: string = "Creating a task from a selection only works in JavaScript, TypeScript, TypeScript React, and C# languages.";
 	static multiLineSelectionNotSupported: string = "Creating a task from a selection only works with a single line selection.";
 }

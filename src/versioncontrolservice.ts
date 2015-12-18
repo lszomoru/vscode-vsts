@@ -1,4 +1,5 @@
 import { window, workspace } from "vscode";
+import { ErrorMessages } from "./constants";
 
 var gitConfig = require("parse-git-config");
 var gitRepoInfo = require("git-repo-info");
@@ -18,7 +19,7 @@ export class VersionControlService {
 	public annotateInVSTS(): void {
 		let gitRepoDetails:GitRepoDetails = this.getRepoDetails();
 
-		// TODO: Display an error message if no file is opened
+		// TODO: Add warning message here
 		if (gitRepoDetails && gitRepoDetails.path != "/") {
 			open(gitRepoDetails.url + "#path=" + urlencode(gitRepoDetails.path) + "&version=GB"+ urlencode(gitRepoDetails.branch) + "&_a=contents&annotate=true");
 		}
@@ -42,7 +43,6 @@ export class VersionControlService {
 
 	private getRepoDetails(): GitRepoDetails {
 		if (!workspace || !workspace.rootPath) {
-			// TODO: Display a warning message
 			return null;
 		}
 
@@ -52,7 +52,7 @@ export class VersionControlService {
 
 		// Check if the repo is hosted on visualstudio.com
 		if (!url || url.indexOf(".visualstudio.com") == -1) {
-			// TODO: Display a warning message
+			window.showWarningMessage(ErrorMessages.notSupported);
 			return null;
 		}
 

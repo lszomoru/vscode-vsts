@@ -1,5 +1,5 @@
 import { StatusBarItem, StatusBarAlignment, window, workspace } from "vscode";
-import { Constants, Icons, SettingNames } from "./constants";
+import { Constants, Icons, Settings } from "./constants";
 
 var rest = require("rest");
 var open = require("open");
@@ -10,12 +10,12 @@ export class HealthService {
 	private _supportWebsiteAddress: string;
 
 	constructor() {
-		this._statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
+		this._statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, Constants.healthStatusBarItemPriority);
 		this._statusBarItem.command = "extension.openVSTSSupportSite";
 		this.updateStatusBarItem(Icons.statusUnknown, Constants.healthIndicatorTooltip);
 
 		// Override the service status page from the configuration file
-		this._supportWebsiteAddress = workspace.getConfiguration().get<string>(SettingNames.supportWebsiteAddress, Constants.supportWebsiteAddress);
+		this._supportWebsiteAddress = workspace.getConfiguration().get<string>(Settings.supportWebsiteAddress, Constants.supportWebsiteAddress);
 
 		// Get the service status at the moment
 		this.getServiceStatus();

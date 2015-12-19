@@ -141,11 +141,6 @@
           			"default": [],
           			"description": "Visual Studio Team Services work item types. (Ex: [\"Bug\", \"Task\"])"
 				},
-				"vsts.statusBarItemPriority": {
-					"type": "number",
-          			"default": 99,
-          			"description": "Priority of the status bar item. The higher the priority the more left the item is displayed."
-				},
         "vsts.supportWebsiteAddress": {
           "type": "string",
           "default": "https://www.visualstudio.com/support/support-overview-vs",

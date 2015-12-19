@@ -1,5 +1,5 @@
 import { commands, Position, QuickPickItem, Range, StatusBarAlignment, StatusBarItem, window, workspace } from "vscode";
-import { Constants, Icons, ErrorMessages, SettingNames, WorkItemFields } from "./constants";
+import { Constants, Icons, ErrorMessages, Settings, WorkItemFields } from "./constants";
 
 var open = require("open");
 var vsts = require("vso-client");
@@ -213,9 +213,9 @@ export class WorkItemService {
 
 	private loadSettings():void {
 		// Load/Validate the settings
-		this._vstsAccount = this.readSetting<string>(SettingNames.accountName, "", "", ErrorMessages.accountNameMissing);
-		this._vstsPersonalAccessToken = this.readSetting<string>(SettingNames.personalAccessToken, "", "", ErrorMessages.personalAccessTokenMissing);
-		this._vstsTeamProject = this.readSetting<string>(SettingNames.teamProjectName, "", "", ErrorMessages.teamProjectNameMissing);
+		this._vstsAccount = this.readSetting<string>(Settings.accountName, "", "", ErrorMessages.accountNameMissing);
+		this._vstsPersonalAccessToken = this.readSetting<string>(Settings.personalAccessToken, "", "", ErrorMessages.personalAccessTokenMissing);
+		this._vstsTeamProject = this.readSetting<string>(Settings.teamProjectName, "", "", ErrorMessages.teamProjectNameMissing);
 
 		// Open the settings file in case any of the settings are missing
 		if (this._vstsAccount == "" || this._vstsPersonalAccessToken == "" || this._vstsTeamProject == "" ) {
@@ -223,16 +223,13 @@ export class WorkItemService {
 			return;
 		}
 
-		// Get the status bar item priority from the settings
-		let priority = this.readSetting<number>(SettingNames.statusBarItemPriority, Constants.statusBarItemPriority);
-
 		// Hide existing status bar item
 		if (this._statusBarItem) {
 			this._statusBarItem.hide();
 		}
 
 		// Add the details of the account and team project to the status bar
-		this._statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, priority);
+		this._statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, Constants.accountStatusBarItemPriority);
 		this._statusBarItem.command = "extension.openVSTSPortal";
 		this._statusBarItem.text = Icons.account + " " + this._vstsAccount.replace(".visualstudio.com", "") + " " + Icons.teamProject + " " + this._vstsTeamProject;
 		this._statusBarItem.show();
@@ -284,7 +281,7 @@ export class WorkItemService {
 						reject(err);
 					} else {
 						// Check against the work item types in the settings
-						let witTypes = _self.readSetting<Array<string>>(SettingNames.workItemTypes, []);
+						let witTypes = _self.readSetting<Array<string>>(Settings.workItemTypes, []);
 
 						for (var index = 0; index < workItemTypes.length; index++) {
 							if (!witTypes || witTypes.length == 0 || witTypes.indexOf(workItemTypes[index].name) != -1) {

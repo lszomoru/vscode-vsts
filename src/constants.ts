@@ -1,8 +1,9 @@
 export class Constants {
-	static statusBarItemPriority: number = 99;
-	static queryFolderName: string = "My Queries";
+	static accountStatusBarItemPriority: number = 99;
+    static queryFolderName: string = "My Queries";
 	static defaultCollectionName: string = "DefaultCollection";
 
+    static healthStatusBarItemPriority: number = 100;
 	static healthIndicatorTooltip: string = "Visual Studio Team Services health indicator";
 	static supportWebsiteAddress: string = "https://www.visualstudio.com/support/support-overview-vs";
 }
@@ -40,12 +41,11 @@ export class Icons {
 	static teamProject: string = "$(icon octicon-organization)";
 }
 
-export class SettingNames {
+export class Settings {
 	static accountName: string = "vsts.account";
 	static personalAccessToken: string = "vsts.pat";
 	static teamProjectName: string = "vsts.teamProject";
 	static workItemTypes: string = "vsts.workItemTypes";
-	static statusBarItemPriority: string = "vsts.statusBarItemPriority";
 	static supportWebsiteAddress: string = "vsts.supportWebsiteAddress";
 }
 

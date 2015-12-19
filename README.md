@@ -6,7 +6,7 @@ The features are available through the commands that were added to the [command 
 
 ### Visual Studio Team Services health, account, and team project indicators
 Based on the settings in `settings.json` two visual indicators are added to the Visual Studio Code status bar. One for the health of Visual Studio Team Services and one for the Visual Studio Team Service account/team project that the extension is connected to. Clicking the service health indicator will open the support website, while clicking the account/team project indicator will open the work item management website.
-
+![VSCode](assets/vscode1.png)
 ### Create new work item
 ![VSCode](assets/vscode4.png)
 ![VSCode](assets/vscode5.png)

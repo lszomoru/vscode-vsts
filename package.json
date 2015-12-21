@@ -159,7 +159,7 @@
     "parse-git-config": "^0.3.1",
     "rest": "^1.3.1",
     "urlencode": "^1.1.0",
-    "vso-client": "^0.2.5"
+    "vso-node-api": "^0.6.1"
   },
   "devDependencies": {
     "typescript": "^1.6.2",

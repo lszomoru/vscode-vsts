@@ -1,14 +1,32 @@
 import { commands, ExtensionContext, window, workspace } from "vscode";
+import { BuildService } from "./buildservice";
 import { HealthService } from "./healthservice";
+import { SettingService } from "./settingservice";
 import { VersionControlService } from "./versioncontrolservice";
 import { WorkItemService } from "./workitemservice";
 
-const healthService: HealthService = new HealthService();
-const versionControlService: VersionControlService = new VersionControlService();
-const workItemService: WorkItemService = new WorkItemService();
-
 export function activate(context: ExtensionContext) {
-	// Service health commands
+    const buildService: BuildService = new BuildService();
+    const healthService: HealthService = new HealthService();
+    const versionControlService: VersionControlService = new VersionControlService();
+    const workItemService: WorkItemService = new WorkItemService();
+
+    // Validate the settings and open settings file if needed
+    if (!SettingService.checkSettings()) {
+        commands.executeCommand("workbench.action.openGlobalSettings");
+    }
+
+    // Validate the settings when settings change
+    workspace.onDidChangeConfiguration(() => {
+        if (!SettingService.checkSettings()) {
+            commands.executeCommand("workbench.action.openGlobalSettings");
+        }
+    });
+
+    // Build commands
+    context.subscriptions.push(commands.registerCommand("extension.openVSTSBuild", () => buildService.openBuild()));
+
+    // Service health commands
     context.subscriptions.push(commands.registerCommand("extension.openVSTSSupportSite", () => healthService.openSupportSite()));
 
 	// Version control commands

@@ -1,27 +1,29 @@
 import { commands, Position, QuickPickItem, Range, StatusBarAlignment, StatusBarItem, window, workspace } from "vscode";
 import { WebApi, getBasicHandler } from "vso-node-api/WebApi";
+import { TeamContext } from "vso-node-api/interfaces/CoreInterfaces";
 import { IWorkItemTrackingApi } from "vso-node-api/WorkItemTrackingApi";
 import { QueryExpand, Wiql, WorkItemExpand } from "vso-node-api/interfaces/WorkItemTrackingInterfaces";
-import { Constants, Icons, ErrorMessages, Settings, WorkItemFields } from "./constants";
+import { Constants, Icons, Settings, WorkItemFields } from "./constants";
+import { ErrorMessages, ErrorHandler } from "./errorhandler";
+import { SettingService } from "./settingservice";
 
 let open = require("open");
 
 export class WorkItemService {
     private _vstsWitClient: IWorkItemTrackingApi;
     private _vstsAccount: string;
-    private _vstsPersonalAccessToken: string;
     private _vstsTeamProject: string;
     private _vstsWorkItemTypes: Array<string>;
     private _statusBarItem: StatusBarItem;
 
     constructor() {
-		// Add the event listener for settings changes
+		// Listen to configuration changes
         workspace.onDidChangeConfiguration(() => {
-            this.loadSettings();
+            this.initialize();
         });
 
-		// Load settings
-        this.loadSettings();
+		// Initialize the service
+        this.initialize();
     }
 
     public newTaskFromSelection(): void {
@@ -143,11 +145,11 @@ export class WorkItemService {
         return new Promise<number>((resolve, reject) => {
             let newWorkItem = [{ op: "add", path: "/fields/" + WorkItemFields.title, value: title }];
             // TODO: This is broken. Waiting for the a fix.
-            _self._vstsWitClient.createWorkItem(null, newWorkItem, workItemType, false, false, function(err, status, workItem)
+            _self._vstsWitClient.createWorkItem(null, newWorkItem, _self._vstsTeamProject, workItemType, false, false, function(err, status, workItem)
             {
                 if (err) {
                     console.log("ERROR: " + err.message);
-                    _self.displayError(err, ErrorMessages.createWorkItem);
+                    ErrorHandler.displayError(err, ErrorMessages.createWorkItem);
                     reject();
                 } else {
                     resolve(workItem.id);
@@ -156,40 +158,21 @@ export class WorkItemService {
         });
     }
 
-    private displayError(err, errorMessage: string): void {
-        if (err) {
-            let message = err.hasOwnProperty("message") ? err.message : err;
-
-            if (message.indexOf("The resource cannot be found") > -1) {
-				// Wrong account name
-                window.showErrorMessage(errorMessage + " " + ErrorMessages.accountNotFoundHint);
-            } else if (message.indexOf("TF200016") > -1) {
-				// Wrong team project name
-                window.showErrorMessage(errorMessage + " " + ErrorMessages.teamProjectNotFoundHint);
-            } else if (message.indexOf("Error unauthorized") > -1) {
-				// Insufficient permissions
-                window.showErrorMessage(errorMessage + " " + ErrorMessages.insufficientPermissionsHint);
-            } else {
-				// Generic hint
-                window.showErrorMessage(errorMessage + " " + ErrorMessages.generalHint);
-            }
-        } else {
-			// Generic hint
-            window.showErrorMessage(errorMessage + " " + ErrorMessages.generalHint);
-        }
-
-		// Open the settings file
-        this.openGlobalSettings();
-    }
-
     private execWorkItemQuery(wiql: Wiql): Promise<Array<WorkItemQuickPickItem>> {
         let _self = this;
 
         return new Promise((resolve, reject) => {
 			// Execute the wiql and get the work item ids
-             _self._vstsWitClient.queryByWiql(wiql, { project: this._vstsTeamProject }, function(err, status, queryResult) {
+            let teamContext: TeamContext = {
+                projectId: undefined,
+                project: _self._vstsTeamProject,
+                teamId: undefined,
+                team: undefined
+            };
+
+            _self._vstsWitClient.queryByWiql(wiql, teamContext, function(err, status, queryResult) {
                 if (err) {
-                    _self.displayError(err, ErrorMessages.executeWorkItemQuery);
+                    ErrorHandler.displayError(err, ErrorMessages.executeWorkItemQuery);
                     reject(err);
                 } else {
 					// Get the work item details
@@ -197,7 +180,7 @@ export class WorkItemService {
 
                     _self._vstsWitClient.getWorkItems(workItemIds, [WorkItemFields.id, WorkItemFields.title, WorkItemFields.workItemType], null, WorkItemExpand.None, function (err, status, workItems) {
                         if (err) {
-                            _self.displayError(err, ErrorMessages.getWorkItemDetails);
+                            ErrorHandler.displayError(err, ErrorMessages.getWorkItemDetails);
                             reject(err);
                         } else {
                             let results: Array<WorkItemQuickPickItem> = [];
@@ -216,38 +199,30 @@ export class WorkItemService {
         });
     }
 
-    private loadSettings(): void {
-		// Load/Validate the settings
-        this._vstsAccount = this.readSetting<string>(Settings.accountName, "", "", ErrorMessages.accountNameMissing);
-        this._vstsPersonalAccessToken = this.readSetting<string>(Settings.personalAccessToken, "", "", ErrorMessages.personalAccessTokenMissing);
-        this._vstsTeamProject = this.readSetting<string>(Settings.teamProjectName, "", "", ErrorMessages.teamProjectNameMissing);
+    private initialize(): void {
+		// Check that all the settings are set
+        if (SettingService.checkSettings(false)) {
+            // Get the settings
+            this._vstsAccount = SettingService.getAccountName();
+            this._vstsTeamProject = SettingService.getTeamProjectName();
 
-		// Open the settings file in case any of the settings are missing
-        if (this._vstsAccount === "" || this._vstsPersonalAccessToken === "" || this._vstsTeamProject === "" ) {
-            this.openGlobalSettings();
-            return;
+            // Hide existing status bar item
+            if (this._statusBarItem) {
+                this._statusBarItem.hide();
+            }
+
+            // Add the details of the account and team project to the status bar
+            this._statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, Constants.accountStatusBarItemPriority);
+            this._statusBarItem.command = "extension.openVSTSPortal";
+            this._statusBarItem.text = Icons.account + " " + this._vstsAccount.replace(".visualstudio.com", "") + " " + Icons.teamProject + " " + this._vstsTeamProject;
+            this._statusBarItem.show();
+
+            // Create the instance of the VSTS work item tracking client
+            this._vstsWitClient = new WebApi("https://" + this._vstsAccount + "/" + Constants.defaultCollectionName, getBasicHandler("oauth", SettingService.getPersonalAccessToken())).getWorkItemTrackingApi();
+
+            // Reset the work item types array
+            this._vstsWorkItemTypes = [];
         }
-
-		// Hide existing status bar item
-        if (this._statusBarItem) {
-            this._statusBarItem.hide();
-        }
-
-		// Add the details of the account and team project to the status bar
-        this._statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, Constants.accountStatusBarItemPriority);
-        this._statusBarItem.command = "extension.openVSTSPortal";
-        this._statusBarItem.text = Icons.account + " " + this._vstsAccount.replace(".visualstudio.com", "") + " " + Icons.teamProject + " " + this._vstsTeamProject;
-        this._statusBarItem.show();
-
-		// Create the instance of the VSTS work item tracking client
-        this._vstsWitClient = new WebApi("https://" + this._vstsAccount + "/" + Constants.defaultCollectionName, getBasicHandler("oauth", this._vstsPersonalAccessToken)).getWorkItemTrackingApi();
-
-		// Reset the work item types array
-        this._vstsWorkItemTypes = [];
-    }
-
-    private openGlobalSettings(): void {
-        commands.executeCommand("workbench.action.openGlobalSettings");
     }
 
     private queryWorkItemQueries(): Promise<Array<WorkItemQueryQuickPickItem>> {
@@ -256,7 +231,7 @@ export class WorkItemService {
         return new Promise((resolve, reject) => {
             _self._vstsWitClient.getQueries(_self._vstsTeamProject, QueryExpand.Wiql, 1, false, function (err, status, queryHierarchy) {
                 if (err) {
-                    _self.displayError(err, ErrorMessages.getWorkItemQueries);
+                    ErrorHandler.displayError(err, ErrorMessages.getWorkItemQueries);
                     reject(err);
                 } else {
                     let results: Array<WorkItemQueryQuickPickItem> = [];
@@ -287,11 +262,11 @@ export class WorkItemService {
             } else {
                 _self._vstsWitClient.getWorkItemTypes(_self._vstsTeamProject, function(err, status, workItemTypes) {
                     if (err) {
-                        _self.displayError(err, ErrorMessages.getWorkItemTypes);
+                        ErrorHandler.displayError(err, ErrorMessages.getWorkItemTypes);
                         reject(err);
                     } else {
 						// Check against the work item types in the settings
-                        let witTypes = _self.readSetting<Array<string>>(Settings.workItemTypes, []);
+                        let witTypes = SettingService.getWorkItemTypes();
 
                         for (let index = 0; index < workItemTypes.length; index++) {
                             if (!witTypes || witTypes.length === 0 || witTypes.indexOf(workItemTypes[index].name) !== -1) {
@@ -303,20 +278,6 @@ export class WorkItemService {
                 });
             }
         });
-    }
-
-    private readSetting<T>(name: string, defaultValue: T, warningValue: T = null, warningMessage: string = ""): T {
-        let configuration = workspace.getConfiguration();
-        let value = configuration.get<T>(name);
-
-		// Check if we need to do any validation on the setting value
-        if (warningValue != null && warningMessage && warningMessage.length > 0) {
-            if (!value || value === warningValue) {
-                window.showWarningMessage(warningMessage);
-            }
-        }
-
-        return value || defaultValue;
     }
 }
 

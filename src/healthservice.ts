@@ -1,4 +1,5 @@
 import { StatusBarItem, StatusBarAlignment, window, workspace } from "vscode";
+import { SettingService } from "./settingservice";
 import { Constants, Icons, Settings } from "./constants";
 
 let rest = require("rest");
@@ -15,7 +16,7 @@ export class HealthService {
         this.updateStatusBarItem(Icons.statusUnknown, Constants.healthIndicatorTooltip);
 
 		// Override the service status page from the configuration file
-        this._supportWebsiteAddress = workspace.getConfiguration().get<string>(Settings.supportWebsiteAddress, Constants.supportWebsiteAddress);
+        this._supportWebsiteAddress = SettingService.getSupportWebsiteAddress();
 
 		// Get the service status at the moment
         this.getServiceStatus();

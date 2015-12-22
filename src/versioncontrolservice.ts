@@ -1,5 +1,5 @@
 import { window, workspace } from "vscode";
-import { ErrorMessages } from "./constants";
+import { ErrorMessages } from "./errorhandler";
 
 let gitConfig = require("parse-git-config");
 let gitRepoInfo = require("git-repo-info");
@@ -19,7 +19,11 @@ export class VersionControlService {
     public annotateInVSTS(): void {
         let gitRepoDetails: GitRepoDetails = this.getRepoDetails();
 
-		// TODO: Add warning message here
+        if (!gitRepoDetails || gitRepoDetails.path === "/") {
+            window.showWarningMessage(ErrorMessages.noFileToAnnotate);
+            return;
+        }
+
         if (gitRepoDetails && gitRepoDetails.path !== "/") {
             open(gitRepoDetails.url + "#path=" + urlencode(gitRepoDetails.path) + "&version=GB" + urlencode(gitRepoDetails.branch) + "&_a=contents&annotate=true");
         }

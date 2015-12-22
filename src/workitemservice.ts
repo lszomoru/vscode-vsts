@@ -142,8 +142,8 @@ export class WorkItemService {
 
         return new Promise<number>((resolve, reject) => {
             let newWorkItem = [{ op: "add", path: "/fields/" + WorkItemFields.title, value: title }];
-
-            _self._vstsWitClient.createWorkItem(null, newWorkItem, _self._vstsTeamProject, workItemType, false, false, function(err, status, workItem)
+            // TODO: This is broken. Waiting for the a fix.
+            _self._vstsWitClient.createWorkItem(null, newWorkItem, workItemType, false, false, function(err, status, workItem)
             {
                 if (err) {
                     console.log("ERROR: " + err.message);

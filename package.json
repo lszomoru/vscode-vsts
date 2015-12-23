@@ -33,42 +33,46 @@
   "main": "./out/src/extension",
   "contributes": {
     "commands": [
-      {
-        "command": "extension.openVSTSSupportSite",
-        "title": "Open Visual Studio Team Services support website"
-		  },
-      {
-        "command": "extension.openInVSTS",
-        "title": "Open in Visual Studio Team Services"
-      },
-      {
-        "command": "extension.annotateInVSTS",
-        "title": "Annotate in Visual Studio Team Services"
-      },
-      {
-        "command": "extension.viewHistoryInVSTS",
-        "title": "View history in Visual Studio Team Services"
-      },
-      {
-        "command": "extension.viewPullRequestInVSTS",
-        "title": "View pull requests in Visual Studio Team Services"
-      },
-			{
-				"command": "extension.createVSTSWorkItem",
-				"title": "Create Visual Studio Team Services work item"
-			},
-			{
-				"command": "extension.createVSTSTaskFromSelection",
-				"title": "Create Visual Studio Team Services task from selection"
-			},
-			{
-				"command": "extension.queryVSTSWorkItems",
-				"title": "Query Visual Studio Team Services work items"
-			},
-			{
-				"command": "extension.openVSTSWorkItemsPortal",
-				"title": "Open Visual Studio Team Services work items website"
-			}            
+        {
+            "command": "extension.openVSTSSupportSite",
+            "title": "Open Visual Studio Team Services support website"
+            },
+        {
+            "command": "extension.openInVSTS",
+            "title": "Open in Visual Studio Team Services"
+        },
+        {
+            "command": "extension.annotateInVSTS",
+            "title": "Annotate in Visual Studio Team Services"
+        },
+        {
+            "command": "extension.viewHistoryInVSTS",
+            "title": "View history in Visual Studio Team Services"
+        },
+        {
+            "command": "extension.viewPullRequestInVSTS",
+            "title": "View pull requests in Visual Studio Team Services"
+        },
+        {
+            "command": "extension.createVSTSWorkItem",
+            "title": "Create Visual Studio Team Services work item"
+        },
+        {
+            "command": "extension.createVSTSTaskFromSelection",
+            "title": "Create Visual Studio Team Services task from selection"
+        },
+        {
+            "command": "extension.queryVSTSWorkItems",
+            "title": "Query Visual Studio Team Services work items"
+        },
+        {
+            "command": "extension.openVSTSWorkItemsPortal",
+            "title": "Open Visual Studio Team Services work items website"
+        },
+        {
+            "command": "extension.openVSTSBuild",
+            "title": "Open Visual Studio Team Services build"
+        }
     ],
 		"keybindings": [
 			{

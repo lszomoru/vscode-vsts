@@ -23,42 +23,79 @@ export class BuildService {
         this.initialize();
     }
 
-    public openBuildDefinition(): void {
+    public openBuild(): void {
         let _self = this;
-        window.showQuickPick(this.getBuilds())
+        window.showQuickPick(this.getBuildDefinitions())
             .then(
-                function(definition: BuildDefinitionQuickPickItem) {
-                    open("https://" + _self._vstsAccount + "/" + Constants.defaultCollectionName + "/" + _self._vstsTeamProject + "/_build#definitionId=" + definition.id.toString() + "&_a=completed");
+                function(definition: BuildQuickPickItem) {
+                    // Get a list of builds for this build definition
+                    window.showQuickPick(_self.getBuilds(definition.id))
+                        .then(
+                            function(build: BuildQuickPickItem) {
+                                open(build.url);
+                            },
+                            function(err) {
+                                console.log("ERROR: " + err.message);
+                            });
                 },
                 function (err) {
                     console.log("ERROR: " + err.message);
                 });
     }
 
-    private initialize(): void {
-		// Check that all the settings are set
-        if (SettingService.checkSettings(false)) {
-            // Get the settings
-            this._vstsAccount = SettingService.getAccountName();
-            this._vstsTeamProject = SettingService.getTeamProjectName();
-
-            // Create the instance of the VSTS build client
-            let pat = getBasicHandler("oauth", SettingService.getPersonalAccessToken());
-            this._vstsBuildClient = new WebApi("https://" + this._vstsAccount + "/" + Constants.defaultCollectionName, pat).getBuildApi();
-        }
+    public openBuildDefinition(): void {
+        let _self = this;
+        window.showQuickPick(this.getBuildDefinitions())
+            .then(
+                function(definition: BuildQuickPickItem) {
+                    open(definition.url);
+                },
+                function (err) {
+                    console.log("ERROR: " + err.message);
+                });
     }
 
-    private getBuilds(): Promise<Array<BuildDefinitionQuickPickItem>> {
+    private getBuilds(definitionId: number): Promise<Array<BuildQuickPickItem>> {
         let _self = this;
 
-        return new Promise<Array<BuildDefinitionQuickPickItem>>((resolve, reject) => {
+        return new Promise<Array<BuildQuickPickItem>>((resolve, reject) => {
+            _self._vstsBuildClient.getBuilds(_self._vstsTeamProject, [ definitionId ], [], "", null, null, "", BuildReason.All, BuildStatus.All,
+                null, [], [], DefinitionType.Build, 999, "", 999, QueryDeletedOption.ExcludeDeleted, BuildQueryOrder.FinishTimeDescending,
+                function (err, status, builds: Array<Build>) {
+                    if (err) {
+                        ErrorHandler.displayError(err, ErrorMessages.getBuildDefinitionDetails);
+                        reject(err);
+                    } else {
+                        let results: Array<BuildQuickPickItem> = [];
+
+                        builds.forEach(b => {
+                            results.push({
+                                id: b.id,
+                                label: b.buildNumber,
+                                description: BuildResult[b.result.toString()] + ", "
+                                    + BuildReason[b.reason.toString()] + ", "
+                                    + b.requestedFor.displayName + ", "
+                                    + b.finishTime.toLocaleString(),
+                                url: b._links.web.href
+                            });
+                        });
+                        resolve(results);
+                    }
+                });
+        });
+    }
+
+    private getBuildDefinitions(): Promise<Array<BuildQuickPickItem>> {
+        let _self = this;
+
+        return new Promise<Array<BuildQuickPickItem>>((resolve, reject) => {
             _self._vstsBuildClient.getDefinitions(_self._vstsTeamProject, "", DefinitionType.Build, "", "", DefinitionQueryOrder.None, 999,
                 function(err, status, definitions: Array<DefinitionReference>) {
                     if (err) {
                         ErrorHandler.displayError(err, ErrorMessages.getBuildDefinitions);
                         reject(err);
                     } else {
-                        let results: Array<BuildDefinitionQuickPickItem> = [];
+                        let results: Array<BuildQuickPickItem> = [];
                         let definitionIds: Array<number> = definitions.map(d => { return d.id; });
 
                         // Get the most recent build for each definition
@@ -84,7 +121,13 @@ export class BuildService {
                                         results.push({
                                             id: d.id,
                                             label: d.name,
-                                            description: description
+                                            description: description,
+                                            url: "https://" + _self._vstsAccount + "/" +
+                                                 Constants.defaultCollectionName + "/" +
+                                                 _self._vstsTeamProject +
+                                                 "/_build#definitionId=" +
+                                                 d.id.toString() +
+                                                 "&_a=completed"
                                         });
                                     });
                                     resolve(results.sort((a, b) => {
@@ -102,10 +145,24 @@ export class BuildService {
                 });
         });
     }
+
+    private initialize(): void {
+		// Check that all the settings are set
+        if (SettingService.checkSettings(false)) {
+            // Get the settings
+            this._vstsAccount = SettingService.getAccountName();
+            this._vstsTeamProject = SettingService.getTeamProjectName();
+
+            // Create the instance of the VSTS build client
+            let pat = getBasicHandler("oauth", SettingService.getPersonalAccessToken());
+            this._vstsBuildClient = new WebApi("https://" + this._vstsAccount + "/" + Constants.defaultCollectionName, pat).getBuildApi();
+        }
+    }
 }
 
-export class BuildDefinitionQuickPickItem implements QuickPickItem {
+export class BuildQuickPickItem implements QuickPickItem {
+    id: number;
     label: string;
     description: string;
-    id: number;
+    url: string;
 }

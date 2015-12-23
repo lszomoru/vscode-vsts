@@ -70,9 +70,13 @@
             "title": "Open Visual Studio Team Services work items website"
         },
         {
-            "command": "extension.openVSTSBuild",
+            "command": "extension.openVSTSBuildDefinition",
             "title": "Open Visual Studio Team Services build definition"
-        }
+        },
+        {
+            "command": "extension.openVSTSBuild",
+            "title": "Open Visual Studio Team Services build"
+        }        
     ],
 		"keybindings": [
 			{

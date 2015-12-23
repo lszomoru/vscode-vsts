@@ -24,7 +24,8 @@ export function activate(context: ExtensionContext) {
     });
 
     // Build commands
-    context.subscriptions.push(commands.registerCommand("extension.openVSTSBuild", () => buildService.openBuildDefinition()));
+    context.subscriptions.push(commands.registerCommand("extension.openVSTSBuildDefinition", () => buildService.openBuildDefinition()));
+    context.subscriptions.push(commands.registerCommand("extension.openVSTSBuild", () => buildService.openBuild()));
 
     // Service health commands
     context.subscriptions.push(commands.registerCommand("extension.openVSTSSupportSite", () => healthService.openSupportSite()));

@@ -11,6 +11,9 @@ export class ErrorMessages {
     static getWorkItemDetails: string = "Unable to retrieve work item details.";
     static executeWorkItemQuery: string = "Unable to execute work item query.";
 
+    static getBuildDefinitions: string = "Unable to retrieve build definitions.";
+    static getBuildDefinitionDetails: string = "Unable to retrieve build definition details.";
+
     static accountNotFoundHint: string = "Please ensure that the Visual Studio Team Services account name in settings.json is corect.";
     static teamProjectNotFoundHint: string = "Please ensure that the Visual Studio Team Services team project name in settings.json is corect.";
     static insufficientPermissionsHint: string = "Please ensure that the Visual Studio Team Services personal access token in settings.json has work item read/write permissions.";

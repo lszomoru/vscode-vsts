@@ -218,7 +218,8 @@ export class WorkItemService {
             this._statusBarItem.show();
 
             // Create the instance of the VSTS work item tracking client
-            this._vstsWitClient = new WebApi("https://" + this._vstsAccount + "/" + Constants.defaultCollectionName, getBasicHandler("oauth", SettingService.getPersonalAccessToken())).getWorkItemTrackingApi();
+            let pat = getBasicHandler("oauth", SettingService.getPersonalAccessToken());
+            this._vstsWitClient = new WebApi("https://" + this._vstsAccount + "/" + Constants.defaultCollectionName, pat).getWorkItemTrackingApi();
 
             // Reset the work item types array
             this._vstsWorkItemTypes = [];

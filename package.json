@@ -71,7 +71,7 @@
         },
         {
             "command": "extension.openVSTSBuild",
-            "title": "Open Visual Studio Team Services build"
+            "title": "Open Visual Studio Team Services build definition"
         }
     ],
 		"keybindings": [
